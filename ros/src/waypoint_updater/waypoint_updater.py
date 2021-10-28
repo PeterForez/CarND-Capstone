@@ -32,22 +32,19 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
     with the correct target velocities, depending on traffic lights and obstacles.
 """
 LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-MAX_DECEL = 0.5 # TODO: Need to check this value again
+MAX_DECEL     = 0.5
 
 
 class WaypointUpdater(object):
     def __init__(self):
+        print("Init WaypointUpdater")
         rospy.init_node('waypoint_updater')
-
-        # Topic:/current_pose, Message Type: PoseStamped, Calback: waypoints_cb
-        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        # Topic:/base_waypoints, Message Type: Lane, Calback: waypoints_cb
-        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
-
-        # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
-        rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
-        # rospy.Subscriber('/obstacle_waypoint', Int32, self.traffic_cb) TODO: Update this line 
-
+        
+        # rospy.Subscriber('Topic',            Msg_Type,    Calback)
+        rospy.Subscriber('/base_waypoints',    Lane,        self.waypoints_cb)
+        rospy.Subscriber('/current_pose',      PoseStamped, self.pose_cb)
+        rospy.Subscriber('/traffic_waypoint',  Int32,       self.traffic_cb)
+        #rospy.Subscriber('/obstacle_waypoint', Int32,       self.obstacle_cb)
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
@@ -73,7 +70,7 @@ class WaypointUpdater(object):
 
     def get_closest_waypoint_idx(self):
         x = self.pose.pose.position.x # you can go the message definition.
-        y = self.pose.pose.position.y
+        y = self.pose.pose.position.y # you can go the message definition.
         closest_idx = self.waypoint_tree.query([x,y], 1)[1] # First "1": return closest one item,  Second "1": return the index
 
         # Check if closest is ahead or behinf vehicle
@@ -92,13 +89,13 @@ class WaypointUpdater(object):
         return closest_idx
 
     def publish_waypoints(self, closest_idx):
-        #lane = Lane()
-        #lane.header = self.base_waypoints.header
-        #lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
-        #self.final_waypoints_pub.publish(lane)
+        lane = Lane()
+        lane.header = self.base_waypoints.header
+        lane.waypoints = self.base_waypoints.waypoints[closest_idx:closest_idx + LOOKAHEAD_WPS]
+        self.final_waypoints_pub.publish(lane)
 
-        final_lane = self.generate_lane()
-        self.final_waypoints_pub.publish_waypoints(final_lane)
+        #final_lane = self.generate_lane()
+        #self.final_waypoints_pub.publish_waypoints(final_lane)
 
     def generate_lane(self):
         lane = Lane()
@@ -133,8 +130,7 @@ class WaypointUpdater(object):
 
     def pose_cb(self, msg):
         # TODO: Implement
-        # Store the current car pose.
-        # It is called arounf 50Hz. 
+        # Store the current car pose. It is called arounf 50Hz. 
         self.pose = msg
         pass
     
