@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 import rospy
-from geometry_msgs.msg import PoseStamped
-from styx_msgs.msg     import Lane, Waypoint
-
 import math
 import numpy as np
-from scipy.spatial import KDTree
-from std_msgs.msg import Int32
 
+from geometry_msgs.msg import PoseStamped
+from styx_msgs.msg     import Lane, Waypoint
+from std_msgs.msg      import Int32
+from scipy.spatial     import KDTree
 
 '''
 This node will publish waypoints from the car's current position to some `x` distance ahead.
@@ -37,7 +36,6 @@ MAX_DECEL     = 0.5
 
 class WaypointUpdater(object):
     def __init__(self):
-        print("Init WaypointUpdater")
         rospy.init_node('waypoint_updater')
         
         # rospy.Subscriber('Topic',            Msg_Type,    Calback)
@@ -56,7 +54,6 @@ class WaypointUpdater(object):
         self.waypoint_tree   = None
         self.stopline_wp_idx = -1
 
-
         rospy.spin()
 
     # Give us control over Publisher frequency.
@@ -68,6 +65,8 @@ class WaypointUpdater(object):
                 # Get closest waypoint
                 #closest_waypoint_idx = self.get_closest_waypoint_idx()
                 self.publish_waypoints()
+            else:
+                rospy.logwarn("self.pose: {}, self.base_lane: {}".format(self.pose, self.base_lane))
             rate.sleep()
 
     def get_closest_waypoint_idx(self):
@@ -99,6 +98,7 @@ class WaypointUpdater(object):
     def publish_waypoints(self):
         final_lane = self.generate_lane()
         self.final_waypoints_pub.publish(final_lane)
+        rospy.logwarn("Final Lane: {}".format(final_lane))
 
     def generate_lane(self):
         lane = Lane()
@@ -122,14 +122,13 @@ class WaypointUpdater(object):
             stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0) # Two waypoints back from line so front car stops at line
             dist = self.distance(waypoints, i, stop_idx)
             vel = math.sqrt(2 * MAX_DECEL * dist)
-            if vel < 1.0:
-                vel = 0
+            if vel < 1.:
+                vel = 0.
 
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
         
         return temp
-
 
     def pose_cb(self, msg):
         # TODO: Implement
@@ -158,7 +157,6 @@ class WaypointUpdater(object):
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
         self.stopline_wp_idx = msg.data
-        pass
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
