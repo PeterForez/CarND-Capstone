@@ -30,7 +30,8 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
     The eventual purpose of this node is to publish a fixed number of waypoints ahead of the vehicle 
     with the correct target velocities, depending on traffic lights and obstacles.
 """
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 50  # Number of waypoints we will publish. You can change this number 
+                    # Updated from 200 to 50 as suggested in https://knowledge.udacity.com/questions/724828 and https://knowledge.udacity.com/questions/583712
 MAX_DECEL     = 0.5
 
 
@@ -125,8 +126,8 @@ class WaypointUpdater(object):
             stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0) # Two waypoints back from line so front car stops at line
             dist = self.distance(waypoints, i, stop_idx)
             vel = math.sqrt(2 * MAX_DECEL * dist)
-            if vel < 1.:
-                vel = 0.
+            if vel < 1:
+                vel = 0
 
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
