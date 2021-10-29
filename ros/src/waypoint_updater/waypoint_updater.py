@@ -54,12 +54,13 @@ class WaypointUpdater(object):
         self.waypoint_tree   = None
         self.stopline_wp_idx = -1
 
-        rospy.spin()
+        self.spin()
 
     # Give us control over Publisher frequency.
     # We want a target 50Hz. We can go for less than that. You can say 30Hz.
     def spin(self):
         rate = rospy.Rate(50)
+        rospy.logwarn("rospy.is_shutdown(): {}".format(rospy.is_shutdown()))
         while not rospy.is_shutdown():
             if self.pose and self.base_lane:
                 # Get closest waypoint
@@ -96,6 +97,7 @@ class WaypointUpdater(object):
         #self.final_waypoints_pub.publish(lane)
     
     def publish_waypoints(self):
+        rospy.logwarn("Start: final_waypoints_pub")
         final_lane = self.generate_lane()
         self.final_waypoints_pub.publish(final_lane)
         rospy.logwarn("Final Lane: {}".format(final_lane))
@@ -104,6 +106,7 @@ class WaypointUpdater(object):
         lane = Lane()
 
         closest_idx    = self.get_closest_waypoint_idx()
+        rospy.logwarn("closest_idx: {}".format(closest_idx))
         farthest_idx   = closest_idx + LOOKAHEAD_WPS
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
 
