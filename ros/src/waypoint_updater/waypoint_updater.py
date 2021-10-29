@@ -60,14 +60,15 @@ class WaypointUpdater(object):
     # We want a target 50Hz. We can go for less than that. You can say 30Hz.
     def spin(self):
         rate = rospy.Rate(50)
-        rospy.logwarn("rospy.is_shutdown(): {}".format(rospy.is_shutdown()))
+        #rospy.logwarn("rospy.is_shutdown(): {}".format(rospy.is_shutdown()))
         while not rospy.is_shutdown():
-            if self.pose and self.base_lane:
+            if self.pose and self.base_lane and self.waypoint_tree:
                 # Get closest waypoint
                 #closest_waypoint_idx = self.get_closest_waypoint_idx()
                 self.publish_waypoints()
             else:
-                rospy.logwarn("self.pose: {}, self.base_lane: {}".format(self.pose, self.base_lane))
+                #rospy.logwarn("self.pose: {}, self.base_lane: {}".format(self.pose, self.base_lane))
+                pass
             rate.sleep()
 
     def get_closest_waypoint_idx(self):
@@ -97,16 +98,15 @@ class WaypointUpdater(object):
         #self.final_waypoints_pub.publish(lane)
     
     def publish_waypoints(self):
-        rospy.logwarn("Start: final_waypoints_pub")
         final_lane = self.generate_lane()
         self.final_waypoints_pub.publish(final_lane)
-        rospy.logwarn("Final Lane: {}".format(final_lane))
+        #rospy.logwarn("Final Lane: {}".format(final_lane))
 
     def generate_lane(self):
         lane = Lane()
 
         closest_idx    = self.get_closest_waypoint_idx()
-        rospy.logwarn("closest_idx: {}".format(closest_idx))
+        #rospy.logwarn("closest_idx: {}".format(closest_idx))
         farthest_idx   = closest_idx + LOOKAHEAD_WPS
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
 
