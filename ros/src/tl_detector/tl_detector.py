@@ -79,7 +79,7 @@ class TLDetector(object):
         self.has_image    = True
         self.camera_image = msg
         light_wp, state   = self.process_traffic_lights()
-        #rospy.logwarn("Closest light wp: {0} And light state: {1}".format(light_wp, state))
+        rospy.logwarn("Closest light wp: {0} And light state: {1}".format(light_wp, state))
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -110,6 +110,7 @@ class TLDetector(object):
 
         """
         #TODO implement
+		closest_idx = None
         if self.waypoint_tree:
             closest_idx = self.waypoint_tree.query([x,y], 1)[1]
         return closest_idx
@@ -124,16 +125,15 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-        #return light.state
-        if(not self.has_image):
-            self.prev_light_loc = None
-            return False
-        
-        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-        
-        #Get classification
-        return self.light_classifier.get_classification(cv_image)
-        #return light.state
+        return light.state
+        #if(not self.has_image):
+        #    self.prev_light_loc = None
+        #    return False
+        #
+        #cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+        #
+        ##Get classification
+        #return self.light_classifier.get_classification(cv_image)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -150,7 +150,7 @@ class TLDetector(object):
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
-        if(self.pose):
+        if self.pose and self.waypoints:
             #car_position = self.get_closest_waypoint(self.pose.pose)
             car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
             #TODO find the closest visible traffic light (if one exists)
