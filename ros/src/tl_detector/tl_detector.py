@@ -79,7 +79,7 @@ class TLDetector(object):
         self.has_image    = True
         self.camera_image = msg
         light_wp, state   = self.process_traffic_lights()
-        rospy.logwarn("Closest light wp: {0} And light state: {1}".format(light_wp, state))
+        #rospy.logwarn("Closest light wp: {0} And light state: {1}".format(light_wp, state))
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -110,7 +110,7 @@ class TLDetector(object):
 
         """
         #TODO implement
-		closest_idx = None
+        closest_idx = None
         if self.waypoint_tree:
             closest_idx = self.waypoint_tree.query([x,y], 1)[1]
         return closest_idx
